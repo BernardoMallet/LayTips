@@ -1,0 +1,31 @@
+{
+  "name": "laytips",
+  "version": "0.1.0",
+  "description": "Plataforma de Radar Diário de Jogos - FootyStats + Telegram Bot",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"yarn workspace @laytips/api dev\" \"yarn workspace @laytips/web dev\" \"yarn workspace @laytips/telegram-bot dev\"",
+    "dev:api": "yarn workspace @laytips/api dev",
+    "dev:web": "yarn workspace @laytips/web dev",
+    "dev:bot": "yarn workspace @laytips/telegram-bot dev",
+    "start": "concurrently \"npm --prefix apps/api start\" \"npm --prefix apps/web start\" \"npm --prefix apps/telegram-bot start\"",
+    "build": "yarn workspaces foreach -pt run build",
+    "build:api": "yarn workspace @laytips/api build",
+    "build:web": "yarn workspace @laytips/web build",
+    "build:bot": "yarn workspace @laytips/telegram-bot build",
+    "lint": "eslint . --ext .ts,.tsx",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "concurrently": "^8.0.0",
+    "eslint": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}

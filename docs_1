@@ -1,0 +1,572 @@
+# Documentação — Plataforma de Radar Diário de Jogos
+
+## Visão Geral
+
+A aplicação será uma plataforma web focada em identificar diariamente partidas com alta tendência de gols, utilizando filtros estatísticos próprios aplicados diretamente através de APIs esportivas.
+
+O sistema não utilizará banco de dados inicialmente.
+
+Toda a aplicação funcionará em tempo real através de:
+
+* consumo de APIs;
+* processamento em memória;
+* filtros automáticos;
+* geração dinâmica da lista diária.
+
+---
+
+# Objetivo da Plataforma
+
+Gerar automaticamente uma lista diária de partidas elegíveis para:
+
+* Lay 0x0
+* Lay 0x1 / 1x0 Favorito
+
+Com foco em:
+
+* gols tardios;
+* pressão ofensiva;
+* jogos com tendência estatística forte;
+* leitura rápida operacional.
+
+---
+
+# Conceito do Sistema
+
+A aplicação irá:
+
+1. Buscar jogos do dia via API;
+2. Buscar os últimos 10 jogos das equipes;
+3. Aplicar os filtros estatísticos;
+4. Ordenar jogos por horário;
+5. Renderizar a lista pronta no frontend.
+
+Tudo sem persistência em banco de dados.
+
+---
+
+# Arquitetura da Aplicação
+
+```txt
+API Futebol
+      ↓
+Backend / Engine
+      ↓
+Processamento dos Métodos
+      ↓
+Cache em memória
+      ↓
+Frontend React
+```
+
+---
+
+# Estrutura Geral do Projeto
+
+```txt
+apps/
+  frontend/
+  backend/
+
+packages/
+  filters/
+  race-engine/
+  shared-types/
+  ui/
+```
+
+---
+
+# Funcionalidades Principais
+
+# Lista Diária de Jogos
+
+A tela principal exibirá:
+
+* horário da partida;
+* campeonato;
+* equipes;
+* método identificado;
+* indicadores ofensivos;
+* estatísticas resumidas;
+* RACE visual.
+
+---
+
+# Ordenação
+
+Os jogos serão organizados por:
+
+```txt
+1. Horário
+2. Prioridade do método
+3. Maior média ofensiva
+```
+
+---
+
+# Métodos da Plataforma
+
+---
+
+# Método 1 — Lay 0x1 / 1x0 Favorito
+
+## Objetivo
+
+Encontrar partidas onde:
+
+* uma equipe possui forte capacidade ofensiva;
+* o adversário sofre muitos gols;
+* existe alta probabilidade de reação do favorito.
+
+---
+
+# Critérios do Método
+
+## Equipe Favorita
+
+Nos últimos 10 jogos:
+
+```txt
+Média de gols até os 70 minutos >= 0.85
+```
+
+---
+
+## Equipe Adversária
+
+Nos últimos 10 jogos:
+
+```txt
+Média de gols sofridos até os 65 minutos >= 0.85
+```
+
+---
+
+# Critérios complementares (opcional)
+
+* favorito marcou em 8/10 jogos;
+* over 1.5 superior a 75%;
+* odd inferior a 2.20.
+
+---
+
+# Método 2 — Lay 0x0
+
+## Objetivo
+
+Encontrar partidas com forte tendência de sair gol mesmo em empate.
+
+---
+
+# Critérios do Método
+
+## Uma das equipes
+
+Nos últimos 10 jogos:
+
+```txt
+Média de gols até os 65 minutos >= 0.85
+```
+
+---
+
+## Ambas as equipes
+
+### HT Goals
+
+```txt
+80% de gols HT marcados/sofridos
+```
+
+---
+
+## Ambas as equipes
+
+### Over 1.5
+
+```txt
+Média mínima de 85% dos jogos com 2+ gols
+```
+
+---
+
+# Sistema RACE
+
+## Objetivo
+
+Exibir visualmente:
+
+* jogos em que as equipes marcaram;
+* jogos em que sofreram gols;
+* frequência ofensiva;
+* comportamento recente.
+
+Inspirado visualmente no:
+
+* Sofascore
+* Flashscore.
+
+---
+
+# Estrutura da RACE
+
+## Exemplo
+
+```txt
+Últimos 10 jogos
+
+🟢 Marcou
+🔴 Sofreu
+
+[🟢🟢🟢🔴🟢🟢🟢🔴🟢🟢]
+```
+
+---
+
+# RACE por faixa de minuto
+
+A plataforma exibirá:
+
+## Gols marcados
+
+* 0-15
+* 16-30
+* 31-45
+* 46-60
+* 61-75
+* 76-90
+
+---
+
+## Gols sofridos
+
+Mesmo padrão.
+
+---
+
+# Interface da Plataforma
+
+# Inspiração Visual
+
+## Sofascore
+
+Características:
+
+* dark mode;
+* cards modernos;
+* visual limpo;
+* leitura rápida;
+* estatísticas compactas.
+
+---
+
+# Experiência de Uso
+
+Inspirada em:
+
+## [Radar Esportivo Theo Borges](https://radaresportivo.com/?utm_source=chatgpt.com)
+
+Características:
+
+* operação rápida;
+* poucos cliques;
+* foco em leitura de mercado;
+* interface enxuta.
+
+---
+
+# Estrutura das Telas
+
+# 1. Tela Inicial
+
+## Conteúdo
+
+* lista diária;
+* filtros ativos;
+* métodos identificados;
+* horário dos jogos;
+* tags operacionais.
+
+---
+
+# Exemplo de Card
+
+```txt
+⚽ Lay 0x0
+
+14:00
+Ajax x PSV
+
+HT Goals: 90%
+Over 1.5: 100%
+Goals 65': 1.05
+```
+
+---
+
+# 2. Tela de Detalhes
+
+## Conteúdo
+
+* estatísticas completas;
+* RACE visual;
+* últimos jogos;
+* timeline de gols;
+* heatmap ofensivo;
+* indicadores HT.
+
+---
+
+# Funcionamento Interno
+
+# Fluxo do Sistema
+
+## Etapa 1
+
+Buscar partidas do dia:
+
+```txt
+GET fixtures/today
+```
+
+---
+
+## Etapa 2
+
+Buscar últimos 10 jogos das equipes:
+
+```txt
+GET last-matches
+```
+
+---
+
+## Etapa 3
+
+Calcular:
+
+* média de gols;
+* média sofrida;
+* HT goals;
+* over 1.5;
+* gols por minuto.
+
+---
+
+## Etapa 4
+
+Aplicar os filtros dos métodos.
+
+---
+
+## Etapa 5
+
+Gerar lista final ordenada.
+
+---
+
+# Cache em Memória
+
+A aplicação não utilizará banco de dados.
+
+Para evitar excesso de requests:
+
+* os dados serão mantidos temporariamente em memória;
+* atualização automática a cada 5 ou 10 minutos.
+
+---
+
+# Exemplo
+
+```ts
+global.dailyMatchesCache
+```
+
+---
+
+# Stack Recomendada
+
+# Front-end
+
+## [React](https://react.dev/?utm_source=chatgpt.com)
+
+---
+
+# Estilização
+
+## [Tailwind CSS](https://tailwindcss.com/?utm_source=chatgpt.com)
+
+---
+
+# Componentes visuais
+
+## [shadcn/ui](https://ui.shadcn.com/?utm_source=chatgpt.com)
+
+---
+
+# Gráficos
+
+## [Recharts](https://recharts.org/?utm_source=chatgpt.com)
+
+---
+
+# Back-end
+
+## Recomendado
+
+### [NestJS](https://nestjs.com/?utm_source=chatgpt.com)
+
+ou
+
+### [Express.js](https://expressjs.com/?utm_source=chatgpt.com)
+
+---
+
+# APIs de Futebol
+
+## Principal sugestão
+
+### [API-Football](https://www.api-football.com/?utm_source=chatgpt.com)
+
+Dados necessários:
+
+* fixtures;
+* estatísticas;
+* eventos;
+* gols;
+* odds;
+* timelines.
+
+---
+
+# Estrutura de Dados
+
+# Match
+
+```ts
+type Match = {
+  homeTeam: string;
+  awayTeam: string;
+
+  kickoff: string;
+
+  method: "LAY_00" | "LAY_FAVORITE";
+
+  stats: MatchStats;
+}
+```
+
+---
+
+# TeamStats
+
+```ts
+type TeamStats = {
+  goalsAvg65: number;
+
+  concededAvg65: number;
+
+  htGoalRate: number;
+
+  over15Rate: number;
+
+  scoredTimeline: number[];
+
+  concededTimeline: number[];
+}
+```
+
+---
+
+# Algoritmo dos Métodos
+
+# Lay 0x0
+
+```txt
+Se:
+
+goalsAvg65 >= 0.85
+
+E
+
+htGoalRate >= 80%
+
+E
+
+over15Rate >= 85%
+
+→ jogo elegível
+```
+
+---
+
+# Lay Favorito
+
+```txt
+Favorito:
+goalsAvg70 >= 0.85
+
+Adversário:
+concededAvg65 >= 0.85
+```
+
+---
+
+# Objetivo do MVP
+
+O MVP terá:
+
+* lista diária;
+* filtros automáticos;
+* visual estilo Sofascore;
+* RACE;
+* cards operacionais;
+* ordenação automática;
+* atualização dinâmica.
+
+Sem:
+
+* login;
+* banco de dados;
+* sistema de usuários;
+* IA;
+* persistência.
+
+---
+
+# Benefícios dessa Arquitetura
+
+## Desenvolvimento rápido
+
+Sem necessidade de:
+
+* modelagem de banco;
+* migrations;
+* autenticação complexa;
+* infraestrutura pesada.
+
+---
+
+# Baixo custo
+
+A aplicação dependerá basicamente de:
+
+* API esportiva;
+* hospedagem do frontend/backend.
+
+---
+
+# Escalabilidade futura
+
+No futuro poderá ser adicionado:
+
+* banco de dados;
+* histórico;
+* ROI;
+* notificações;
+* Telegram;
+* IA;
+* assinaturas.
+
+Sem necessidade de reconstruir a arquitetura principal.

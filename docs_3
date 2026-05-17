@@ -1,0 +1,559 @@
+# Radar Diário de Futebol — Documentação Técnica
+
+## Visão Geral
+
+O projeto consiste em uma plataforma de radar estatístico diário para futebol, focada em identificar partidas com alta tendência de gols através de filtros próprios.
+
+A plataforma NÃO utilizará:
+
+* banco de dados;
+* processamento ao vivo;
+* websocket;
+* estatísticas live;
+* monitoramento em tempo real.
+
+Toda a aplicação será baseada em:
+
+* consumo de APIs estatísticas;
+* processamento em memória;
+* geração dinâmica da lista diária;
+* envio automático para Telegram;
+* dashboard web operacional.
+
+---
+
+# Objetivo do Projeto
+
+Gerar automaticamente listas diárias de jogos para:
+
+* Lay 0x0
+* Lay 0x1 / 1x0 Favorito
+
+Baseado em:
+
+* últimos 10 jogos;
+* médias ofensivas;
+* gols por minuto;
+* HT goals;
+* over 1.5;
+* comportamento recente das equipes.
+
+---
+
+# Filosofia da Aplicação
+
+O projeto NÃO busca ser:
+
+* tracker ao vivo;
+* plataforma de apostas;
+* sistema de live stats.
+
+O foco principal é:
+
+* radar operacional;
+* leitura rápida;
+* estatística pré-jogo;
+* filtros personalizados;
+* experiência visual simples e eficiente.
+
+---
+
+# API Principal
+
+## [FootyStats API](https://footystats.org/api/?utm_source=chatgpt.com)
+
+---
+
+# Motivo da escolha
+
+A FootyStats já fornece:
+
+* estatísticas agregadas;
+* gols por minuto;
+* over goals;
+* BTTS;
+* HT goals;
+* últimos jogos;
+* métricas ofensivas e defensivas.
+
+Isso reduz drasticamente:
+
+* complexidade do backend;
+* processamento manual;
+* necessidade de múltiplas APIs;
+* necessidade de banco de dados.
+
+---
+
+# Dados utilizados da API
+
+## Jogos do dia
+
+* fixtures;
+* horários;
+* campeonatos.
+
+---
+
+# Últimos 10 jogos
+
+Utilizados para:
+
+* médias ofensivas;
+* médias defensivas;
+* comportamento recente.
+
+---
+
+# Estatísticas utilizadas
+
+## Ofensivas
+
+* gols marcados;
+* gols até 65';
+* gols até 70';
+* HT goals;
+* over 1.5;
+* over 2.5.
+
+---
+
+## Defensivas
+
+* gols sofridos;
+* gols sofridos até 65';
+* frequência de sofrer gols.
+
+---
+
+# Arquitetura da Aplicação
+
+```txt
+FootyStats API
+        ↓
+NestJS API
+        ↓
+Filtros próprios
+        ↓
+Lista diária
+        ↓
+Frontend React
+        ↓
+Telegram Bot
+```
+
+---
+
+# Estrutura do Monorepo
+
+```txt
+apps/
+  web/
+  api/
+  telegram-bot/
+
+packages/
+  filters/
+  footystats/
+  shared-types/
+  utils/
+```
+
+---
+
+# Aplicações
+
+# apps/web
+
+Responsável por:
+
+* dashboard;
+* lista diária;
+* visual estilo Sofascore;
+* exibição dos métodos;
+* cards operacionais;
+* RACE visual.
+
+---
+
+# apps/api
+
+Responsável por:
+
+* consumir FootyStats;
+* processar estatísticas;
+* aplicar filtros;
+* gerar lista diária.
+
+---
+
+# apps/telegram-bot
+
+Responsável por:
+
+* envio automático diário;
+* mensagens operacionais;
+* listas dos métodos.
+
+---
+
+# Packages Compartilhados
+
+# packages/filters
+
+Contém:
+
+* regras dos métodos;
+* filtros estatísticos;
+* cálculo das médias.
+
+Exemplo:
+
+```ts
+getLay00Matches()
+getLayFavoriteMatches()
+```
+
+---
+
+# packages/footystats
+
+Responsável por:
+
+* integração com API;
+* requests;
+* transformação de dados.
+
+---
+
+# packages/shared-types
+
+Tipos compartilhados:
+
+```ts
+Match
+TeamStats
+RaceStats
+DailyMatch
+```
+
+---
+
+# Método 1 — Lay 0x1 / 1x0 Favorito
+
+## Objetivo
+
+Encontrar partidas onde:
+
+* uma equipe possui forte capacidade ofensiva;
+* o adversário sofre gols frequentemente;
+* existe tendência de reação do favorito.
+
+---
+
+# Regras
+
+## Favorito
+
+Nos últimos 10 jogos:
+
+```txt
+Média de gols até os 70 minutos >= 0.85
+```
+
+---
+
+## Adversário
+
+Nos últimos 10 jogos:
+
+```txt
+Média de gols sofridos até os 65 minutos >= 0.85
+```
+
+---
+
+# Método 2 — Lay 0x0
+
+## Objetivo
+
+Encontrar partidas com forte tendência de quebra do empate.
+
+---
+
+# Regras
+
+## Uma das equipes
+
+Nos últimos 10 jogos:
+
+```txt
+Média de gols até os 65 minutos >= 0.85
+```
+
+---
+
+## Ambas as equipes
+
+```txt
+HT Goals >= 80%
+```
+
+---
+
+## Ambas as equipes
+
+```txt
+Over 1.5 >= 85%
+```
+
+---
+
+# Sistema RACE
+
+## Objetivo
+
+Exibir visualmente:
+
+* jogos em que a equipe marcou;
+* jogos em que sofreu;
+* comportamento recente;
+* distribuição ofensiva.
+
+---
+
+# Estrutura da RACE
+
+Exemplo:
+
+```txt
+🟢 Marcou
+🔴 Sofreu
+
+[🟢🟢🔴🟢🟢🟢🔴🟢🟢🟢]
+```
+
+---
+
+# RACE por faixa de minuto
+
+## Marcados
+
+* 0-15
+* 16-30
+* 31-45
+* 46-60
+* 61-75
+* 76-90
+
+---
+
+## Sofridos
+
+Mesmo padrão.
+
+---
+
+# Interface da Plataforma
+
+## Inspiração visual
+
+### Sofascore
+
+Características:
+
+* dark mode;
+* cards compactos;
+* leitura rápida;
+* indicadores operacionais;
+* foco mobile.
+
+---
+
+# Experiência de Uso
+
+Inspirada em:
+
+## [Radar Esportivo Theo Borges](https://radaresportivo.com/?utm_source=chatgpt.com)
+
+Características:
+
+* poucos cliques;
+* velocidade operacional;
+* foco em análise rápida;
+* leitura limpa.
+
+---
+
+# Frontend
+
+## Stack
+
+### [React](https://react.dev/?utm_source=chatgpt.com)
+
+### [Tailwind CSS](https://tailwindcss.com/?utm_source=chatgpt.com)
+
+### [shadcn/ui](https://ui.shadcn.com/?utm_source=chatgpt.com)
+
+### [Recharts](https://recharts.org/?utm_source=chatgpt.com)
+
+---
+
+# Backend
+
+## Stack
+
+### [NestJS](https://nestjs.com/?utm_source=chatgpt.com)
+
+Motivos:
+
+* organização;
+* cron jobs;
+* Telegram;
+* modularização;
+* ótimo para monorepo.
+
+---
+
+# Telegram Bot
+
+## Stack
+
+### [Telegraf.js](https://telegraf.js.org/?utm_source=chatgpt.com)
+
+---
+
+# Funcionamento
+
+O bot:
+
+1. busca a lista diária;
+2. aplica filtros;
+3. gera mensagem;
+4. envia automaticamente.
+
+---
+
+# Exemplo de envio
+
+```txt
+🔥 LISTA DIÁRIA — LAY 0x0
+
+⚽ Ajax x PSV
+🕒 14:00
+
+✅ Goals 65': 1.05
+✅ HT Goals: 90%
+✅ Over 1.5: 100%
+```
+
+---
+
+# Atualização da Lista
+
+A aplicação trabalhará com:
+
+* processamento em memória;
+* cache temporário;
+* atualização periódica.
+
+---
+
+# Estratégia de Cache
+
+Sem banco de dados.
+
+Os dados serão:
+
+* carregados;
+* processados;
+* mantidos em memória temporariamente.
+
+Exemplo:
+
+```ts
+global.dailyMatchesCache
+```
+
+---
+
+# Frequência de atualização
+
+Sugestão:
+
+```txt
+A cada 5 minutos
+```
+
+ou
+
+```txt
+Somente em horários programados
+```
+
+---
+
+# Deploy
+
+# Frontend
+
+## [Vercel](https://vercel.com/?utm_source=chatgpt.com)
+
+---
+
+# Backend + Telegram
+
+## [Railway](https://railway.app/?utm_source=chatgpt.com)
+
+ou
+
+## [Render](https://render.com/?utm_source=chatgpt.com)
+
+---
+
+# Benefícios da Arquitetura
+
+## Simplicidade
+
+Sem:
+
+* banco;
+* websocket;
+* workers complexos;
+* filas;
+* live tracking.
+
+---
+
+# Baixo custo
+
+A aplicação depende basicamente:
+
+* da API;
+* da hospedagem.
+
+---
+
+# Alta velocidade de desenvolvimento
+
+A arquitetura permite:
+
+* MVP rápido;
+* manutenção simples;
+* fácil escalabilidade futura.
+
+---
+
+# Escalabilidade futura
+
+No futuro poderá ser adicionado:
+
+* banco de dados;
+* histórico;
+* ROI;
+* IA;
+* notificações avançadas;
+* app mobile;
+* área premium.
+
+Sem necessidade de refatorar a arquitetura principal.

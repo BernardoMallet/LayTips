@@ -1,0 +1,14 @@
+{
+  "name": "@laytips/race-engine",
+  "version": "0.1.0",
+  "description": "Motor RACE - Visualização de histórico",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "dependencies": {
+    "@laytips/shared-types": "workspace:*"
+  }
+}
