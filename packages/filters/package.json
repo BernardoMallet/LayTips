@@ -1,6 +1,6 @@
 {
   "name": "@laytips/filters",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Motor de filtros para análise de partidas",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,6 +9,6 @@
     "watch": "tsc --watch"
   },
   "dependencies": {
-    "@laytips/shared-types": "workspace:*"
+    "@laytips/shared-types": "*"
   }
 }

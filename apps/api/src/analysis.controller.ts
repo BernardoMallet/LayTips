@@ -30,7 +30,7 @@ export class AnalysisController {
     const matches =
       await this.analysisService.getDailyMatches();
     const match = matches.matches.find(
-      (m) => m.id === matchId
+      (m: Match) => m.id === matchId
     );
 
     if (!match) {

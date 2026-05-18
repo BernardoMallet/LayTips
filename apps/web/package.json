@@ -11,9 +11,9 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@laytips/shared-types": "workspace:*",
-    "@laytips/race-engine": "workspace:*",
-    "@radix-ui/react-slot": "^2.0.0",
+    "@laytips/shared-types": "*",
+    "@laytips/race-engine": "*",
+    "@radix-ui/react-slot": "^1.1.0",
     "axios": "^1.6.0",
     "class-variance-authority": "^0.7.0",
     "classnames": "^2.3.0",

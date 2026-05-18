@@ -1,9 +1,10 @@
 {
   "name": "@laytips/shared-types",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Tipos TypeScript compartilhados",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "private": true,
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch"

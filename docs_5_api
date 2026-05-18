@@ -1,0 +1,194 @@
+Documentação — Substituição da FootyStats por APIs Gratuitas
+Objetivo
+
+Remover dependência da API paga da FootyStats e utilizar APIs gratuitas/públicas para alimentar:
+
+Bot Telegram
+Filtros de gols
+Estatísticas HT/FT
+Análises até minuto 65
+Dashboard web
+Sistema de alertas
+APIs recomendadas
+1. API-Football (Recomendação principal)
+
+API-Football
+
+Vantagens
+Jogos ao vivo
+Estatísticas avançadas
+Eventos minuto a minuto
+Odds
+Dados HT/FT
+Média de gols
+Excelente para trading esportivo
+Desvantagens
+Plano gratuito possui limite mensal
+Necessita chave de API
+Ideal para
+MVP do LayTips
+Bot Telegram
+Sistema de filtros
+Alertas automáticos
+2. TheSportsDB (100% gratuita)
+
+TheSportsDB API
+
+Vantagens
+Gratuita
+Sem cartão de crédito
+API pública
+Fácil integração
+Desvantagens
+Menos estatísticas avançadas
+Cobertura menor para análise de trading
+Ideal para
+Desenvolvimento inicial
+Testes
+Protótipos rápidos
+3. Football-Data.org
+
+Football-Data.org
+
+Vantagens
+Boa base histórica
+Jogos
+Times
+Competições
+Tabelas
+Desvantagens
+Poucos eventos detalhados
+Menos foco em live stats
+Ideal para
+Dados históricos
+Cache interno
+Estatísticas acumuladas
+Arquitetura recomendada
+Monorepo
+apps/
+  api/
+  telegram-bot/
+  web/
+
+packages/
+  filters/
+  shared-types/
+  race-engine/
+  data-provider/
+Stack recomendada
+Backend
+NestJS
+Cron Jobs
+Redis (cache)
+Axios/Fetch
+Frontend
+React
+Tailwind
+Recharts
+Banco
+PostgreSQL
+Bot
+Telegraf
+Estratégia recomendada
+Fase 1 — MVP
+
+Usar:
+
+API-Football
+
+Objetivo:
+
+Fazer bot funcionar
+Criar filtros
+Validar lógica
+Gerar alertas Telegram
+Fase 2 — Escala
+
+Adicionar:
+
+Cache Redis
+Banco histórico
+Multi-provider API
+Retry system
+Queue processing
+Fase 3 — Dados próprios
+
+Criar:
+
+Histórico interno
+Engine estatística própria
+Média personalizada
+Modelos preditivos
+Alterações necessárias no projeto
+Remover validação FootyStats
+
+No app.module.ts:
+
+Remover:
+
+if (!process.env.FOOTYSTATS_API_KEY) {
+  throw new Error("FOOTYSTATS_API_KEY não configurada");
+}
+Criar novo provider
+
+Exemplo:
+
+export class ApiFootballService {}
+
+ou:
+
+export class FootballDataService {}
+Exemplo de .env
+API_FOOTBALL_KEY=xxxxxxxx
+
+TELEGRAM_BOT_TOKEN=xxxxxxxx
+TELEGRAM_CHAT_ID=xxxxxxxx
+
+API_URL=http://localhost:3001
+PORT=3001
+Estrutura sugerida para provider
+packages/
+  data-provider/
+    src/
+      providers/
+        api-football.provider.ts
+        football-data.provider.ts
+        thesportsdb.provider.ts
+Estratégia de filtros
+Exemplo de regra até minuto 65
+
+Critérios:
+
+Time A média gols ≥ 0.90
+Time B média gols ≥ 0.90
+Over 0.5 HT elevado
+Pressão ofensiva
+Finalizações
+Escanteios
+Odds compatíveis
+Evolução futura
+Features interessantes
+Alertas ao vivo
+Scanner de oportunidades
+Heatmaps
+IA preditiva
+Dashboard de ROI
+Backtesting
+Machine Learning
+Recomendação final
+Melhor equilíbrio atualmente
+MVP
+
+Usar:
+
+API-Football
+Desenvolvimento gratuito
+
+Usar:
+
+TheSportsDB API
+Dados históricos
+
+Usar:
+
+Football-Data.org

@@ -4,6 +4,7 @@
 
 import dotenv from "dotenv";
 import { LayTipsBot } from "./bot";
+import type { DailyMatches } from "@laytips/shared-types";
 
 dotenv.config();
 
@@ -21,17 +22,12 @@ if (!BOT_TOKEN || !CHAT_ID) {
 
 const bot = new LayTipsBot(BOT_TOKEN, CHAT_ID);
 
-/**
- * Schedule para enviar lista diária
- * Executar a cada 6 horas ou em horários específicos
- */
 async function scheduleDailyUpdate(): Promise<void> {
   try {
-    // Buscar dados do backend
     const response = await fetch(`${API_URL}/api/matches/today`);
-    const data = await response.json();
 
-    // Enviar para Telegram
+    const data = (await response.json()) as DailyMatches;
+
     await bot.sendDailyList(data);
   } catch (error) {
     console.error("Erro ao buscar e enviar dados:", error);
